@@ -1,0 +1,27 @@
+displayName: Request Signing
+type: middleware
+import: github.com/noaHson86/signature-plugin
+
+summary: 'Signing Request Objects'
+
+testData:
+  signatureHeaderName: "X-Test-Sign"
+  constructHeaderName: "X-Test-Construct"
+  timeHeaderName: "X-Test-Time"
+  pathRegex:
+    - "^/hodor"
+  additionalHeaders:
+    X-Add-Test1: "ImAValue"
+    X-Add-Test2: "ImAValueToo"
+  requiredHeaders:
+    rq1: "Accept"
+    rq2: "Referer"
+  optionalHeaders:
+    op1: "Content-Type"
+    op2: "Content-Length"
+    op3: "X-Add-Test1"
+  maxHashableContentLength: "-1"
+  keyType: "ed25519"
+  keyValue: "base64url-safe encoded private key"
+  errorStatus: 400
+  errorMessage: true
