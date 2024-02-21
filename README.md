@@ -1,7 +1,7 @@
 # Readme
 
 The goal of this plugin is to provide a reliable way of detecting altered requests within you
-own network. Don't think of it as an extra layer of security, it's just a way too see if the request was
+own network. Don't think of it as an extra layer of security, it's just a way to see if the request was
 changed while floating inside your own network.
 
 ### config local
@@ -49,6 +49,12 @@ defaults to "X-Test-Construct"
 `timeHeaderName`: if set, creates an [time.RFC3339Nano](https://pkg.go.dev/time#pkg-constants) timestamp(UTC forced),
 will be part of signature and construct. can be omitted.
 
+`pathRegex`: this will exclude matching paths to be processed by the plugin. you may use it for path
+with regular big uploads or smth.
+
+`additionalHeaders`: you can use this to add more headers to the request, which can also be included
+into `reqiredHeaders` or `optionalHeaders`. can be omitted.
+
 `requiredHeaders`: if set, it will fail with `errorStatus`-Code and error message if allowed by `errorMessage`.
 can be omitted.
 
@@ -69,18 +75,20 @@ if omitted, all will be accepted for hashing.
 
 `keyValue`: base64 urlsafe encoded private key, set it on deployment. ask your devops
 
-`rSASignatureAlgo`: choose between `pcks1v15` and `pss`. can be omitted, if `keyType` is `ed25519`
+`rSASignatureAlgo`: choose between `pcks1v15` and `pss`. can be omitted, if `keyType` is `ed25519`.
+defaults to `pcks1v15`.
 
-`errorStatus`: choose a statuscode, defaults to `400`
+`errorStatus`: choose a status code, defaults to `400`
 
 `errorMessage`: if error-message will be added, can be omitted and defaults to true
 
 ## Construct-String
 
-all possible shorts and their translation
-and in the `Header` it looks like this `X-Test-Construct: th,m,h,p,d1,d11,eb`
+all possible shorts and their translation for the build-in stuff
+and the resulting `Header` will looks like this `X-Test-Construct: th,m,h,p,d1,d11,eb`
 
-recreate the hash on the receiving end and validate the signature
+recreate the hash on the receiving end and validate the signature.
+to get an idea, how that works, just check the tests.
 
 ```json
 {
@@ -114,6 +122,7 @@ export superduper=$(cat key-file)
 ./traefik --configfile traefik-sigdemo.yaml
 ```
 
+### some commands to generate keys and stuff
 ```shell
 openssl genpkey -algorithm ed25519 -out ed25519.pem
 ```
@@ -128,4 +137,9 @@ ssh-keygen -t rsa -b 4096 -m PEM -f key-file
 
 ```shell
 openssl rsa -in key-file -pubout -outform PEM -out key-file.pub
+```
+
+```shell
+cat key-file | basenc --base64url
+(remove the line breaks after)
 ```

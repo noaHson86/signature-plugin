@@ -48,6 +48,7 @@ func CreateConfig() *Config {
 		ConstructHeaderName:      "X-Test-Construct",
 		ErrorStatus:              http.StatusBadRequest,
 		ErrorMessage:             true,
+		RSASignatureAlgo:         "pcks1v15",
 		MaxHashableContentLength: -1,
 	}
 }
@@ -207,13 +208,15 @@ func signRequest(req *http.Request, config *Config, cBuilder *strings.Builder, m
 		signature, err = rsa.SignPSS(rand.Reader, &config.rsaKey, crypto.SHA256, hashed[:], nil)
 	} else if config.KeyType == "ed25519" {
 		signature = ed25519.Sign(config.edKey, nb)
+	} else {
+		return errors.New("no valid key + algo")
 	}
 	if err != nil {
 		return err
 	}
-
-	req.Header.Set(config.SignatureHeaderName, hex.EncodeToString(signature[:]))
 	req.Header.Set(config.ConstructHeaderName, cBuilder.String())
+	req.Header.Set(config.SignatureHeaderName, hex.EncodeToString(signature[:]))
+
 	return nil
 }
 
